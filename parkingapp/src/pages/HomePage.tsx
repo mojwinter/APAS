@@ -1,13 +1,57 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Car, MapPin, Clock, ChevronRight } from 'lucide-react';
-import { useParkingContext } from '../context/ParkingContext';
+"use client"
+
+import type React from "react"
+import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
+import { Car, MapPin, Clock, ChevronRight, AlertTriangle } from "lucide-react"
+import { useParkingContext } from "../context/ParkingContext"
+
+const HomeCountdownTimer: React.FC<{ sessionId: string }> = ({ sessionId }) => {
+  const { getRemainingTime } = useParkingContext()
+  const [remaining, setRemaining] = useState<{ minutes: number; seconds: number } | null>(null)
+
+  useEffect(() => {
+    // Initial check
+    setRemaining(getRemainingTime(sessionId))
+
+    // Update every second
+    const interval = setInterval(() => {
+      const time = getRemainingTime(sessionId)
+      setRemaining(time)
+
+      // If time is up, clear the interval
+      if (!time) {
+        clearInterval(interval)
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [sessionId, getRemainingTime])
+
+  if (!remaining) {
+    return (
+        <div className="flex items-center gap-2 text-yellow-100">
+          <AlertTriangle className="h-4 w-4" />
+          <span>Session expired</span>
+        </div>
+    )
+  }
+
+  return (
+      <div className="flex items-center gap-2 text-white">
+        <Clock className="h-4 w-4" />
+        <span>
+        {remaining.minutes.toString().padStart(2, "0")}:{remaining.seconds.toString().padStart(2, "0")} remaining
+      </span>
+      </div>
+  )
+}
 
 const HomePage: React.FC = () => {
-  const { activeSession, parkingLocations } = useParkingContext();
+  const { activeSession, parkingLocations } = useParkingContext()
 
   // Get recent locations (first 3 from the list)
-  const recentLocations = parkingLocations.slice(0, 3);
+  const recentLocations = parkingLocations.slice(0, 3)
 
   return (
       <div className="p-5">
@@ -37,15 +81,21 @@ const HomePage: React.FC = () => {
                   </div>
                   <ChevronRight className="h-5 w-5 text-white/80" />
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center mb-3">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-white/80" />
                     <span className="text-sm">{activeSession.location}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-white/80" />
-                    <span className="text-sm">{activeSession.startTime} - {activeSession.endTime}</span>
+                    <span className="text-sm">
+                  {activeSession.startTime} - {activeSession.endTime}
+                </span>
                   </div>
+                </div>
+                {/* Countdown Timer */}
+                <div className="mt-2 bg-white/10 rounded-lg p-2">
+                  <HomeCountdownTimer sessionId={activeSession.id} />
                 </div>
               </div>
             </Link>
@@ -55,13 +105,19 @@ const HomePage: React.FC = () => {
         <div className="mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-3">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
-            <Link to="/find-parking" className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-3">
+            <Link
+                to="/find-parking"
+                className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-3"
+            >
               <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
                 <MapPin className="h-5 w-5 text-emerald-600" />
               </div>
               <span className="font-medium text-gray-900">Find Parking</span>
             </Link>
-            <Link to="/history" className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-3">
+            <Link
+                to="/history"
+                className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-3"
+            >
               <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
                 <Clock className="h-5 w-5 text-emerald-600" />
               </div>
@@ -74,7 +130,7 @@ const HomePage: React.FC = () => {
         <div>
           <h2 className="text-lg font-bold text-gray-900 mb-3">Recent Locations</h2>
           <div className="space-y-3">
-            {recentLocations.map(location => (
+            {recentLocations.map((location) => (
                 <Link
                     key={location.id}
                     to={`/book-parking/${location.id}`}
@@ -95,7 +151,8 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </div>
-  );
-};
+  )
+}
 
-export default HomePage;
+export default HomePage
+
