@@ -172,7 +172,7 @@ const ParkingDetailsPage: React.FC = () => {
                       <span className="text-base font-bold text-gray-900">{session.endTime}</span>
                       <span className="text-sm text-gray-400">{session.date}</span>
                     </div>
-                    <p className="text-sm text-gray-600">Payment processed successfully</p>
+                    <p className="text-sm text-gray-600">Parking session expired</p>
                   </div>
               )}
             </div>
