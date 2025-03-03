@@ -1,83 +1,108 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, MapPin, Clock, Car } from 'lucide-react';
-import { useParkingContext } from '../context/ParkingContext';
+"use client"
+
+import type React from "react"
+import { useState, useEffect } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import { ArrowLeft, MapPin, Clock, Car } from "lucide-react"
+import { useParkingContext } from "../context/ParkingContext"
 
 const BookParkingPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const locationId = parseInt(id || '1');
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const locationId = Number.parseInt(id || "1")
 
-  const {
-    parkingLocations,
-    getParkingSpots,
-    addParkingSession
-  } = useParkingContext();
+  const { parkingLocations, getParkingSpots, addParkingSession } = useParkingContext()
 
   // Get location data
-  const location = parkingLocations.find(loc => loc.id === locationId) || parkingLocations[0];
+  const location = parkingLocations.find((loc) => loc.id === locationId) || parkingLocations[0]
 
   // Get parking spots for this location
-  const parkingSpots = getParkingSpots(locationId);
+  const parkingSpots = getParkingSpots(locationId)
 
   // State for selected spot
-  const [selectedSpot, setSelectedSpot] = useState<number | null>(null);
+  const [selectedSpot, setSelectedSpot] = useState<number | null>(null)
 
   // State for time slot
-  const [timeSlot] = useState('10:02 PM - 12:20 AM');
+  const [selectedDate] = useState<Date>(new Date())
+  const [startTime] = useState<Date>(new Date())
+  const [duration, setDuration] = useState<number>(60) // Default 60 minutes
+  const [endTime, setEndTime] = useState<Date>(new Date(new Date().getTime() + 60 * 60 * 1000)) // Default +1 hour
+
+  const durationOptions = [
+    { value: 30, label: "30 minutes" },
+    { value: 60, label: "1 hour" },
+    { value: 120, label: "2 hours" },
+    { value: 180, label: "3 hours" },
+    { value: 240, label: "4 hours" },
+  ]
+
+  const formatTime = (date: Date): string => {
+    return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
+  }
+
+  const updateEndTime = (start: Date, durationMinutes: number): Date => {
+    return new Date(start.getTime() + durationMinutes * 60 * 1000)
+  }
+
+  useEffect(() => {
+    const newEndTime = updateEndTime(startTime, duration)
+    setEndTime(newEndTime)
+  }, [startTime, duration])
 
   // Calculate price based on location and time slot
   const calculatePrice = () => {
-    // Simple calculation for demo purposes
-    const hourlyRate = parseFloat(location.price.replace(/[^0-9.]/g, ''));
-    const hours = 2.5; // Assuming 2.5 hours for the time slot
-    return `$${(hourlyRate * hours).toFixed(2)}`;
-  };
+    const hourlyRate = Number.parseFloat(location.price.replace(/[^0-9.]/g, ""))
+    const hours = duration / 60 // Convert minutes to hours
+    return `$${(hourlyRate * hours).toFixed(2)}`
+  }
 
   const handleSpotSelection = (spotId: number) => {
-    const spot = parkingSpots.find(s => s.id === spotId);
+    const spot = parkingSpots.find((s) => s.id === spotId)
     if (spot && !spot.isTaken) {
-      setSelectedSpot(spotId);
+      setSelectedSpot(spotId)
     }
-  };
+  }
 
   const handleBooking = () => {
     if (selectedSpot) {
       // Create a new parking session
-      const now = new Date();
-      const sessionId = Math.floor(Math.random() * 1000).toString();
+      const sessionId = Math.floor(Math.random() * 1000).toString()
 
-      // Parse the time slot
-      const [startTime, endTime] = timeSlot.split(' - ');
+      // Format the times for display
+      const formattedStartTime = formatTime(startTime)
+      const formattedEndTime = formatTime(endTime)
 
       // Format the date
-      const date = now.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
+      const date = selectedDate.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
 
       // Calculate amount
-      const amount = `CAD ${calculatePrice()}`;
+      const amount = `CAD ${calculatePrice()}`
 
-      // Add the session
+      // Add the session with actual timestamps for countdown
       addParkingSession({
         id: sessionId,
         zone: location.zone,
         location: location.name,
         address: location.address,
-        startTime,
-        endTime,
+        startTime: formattedStartTime,
+        endTime: formattedEndTime,
         date,
         amount,
-        status: 'Active',
-        spotId: selectedSpot
-      });
+        status: "Active",
+        spotId: selectedSpot,
+        startTimestamp: startTime.getTime(),
+        endTimestamp: endTime.getTime(),
+        durationMinutes: duration,
+      })
 
       // Navigate to the details page
-      navigate(`/parking-details/${sessionId}`);
+      navigate(`/parking-details/${sessionId}`)
     }
-  };
+  }
 
   return (
       <div className="h-full flex flex-col">
@@ -135,25 +160,40 @@ const BookParkingPage: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-1">Time Slot</p>
-              <button className="w-full flex items-center justify-between bg-gray-50 rounded-lg p-3">
-                <span className="font-medium text-gray-900">{timeSlot}</span>
-                <ChevronDown className="h-5 w-5 text-gray-500" />
-              </button>
+              <p className="text-sm text-gray-500 mb-1">Duration</p>
+              <select
+                  className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900"
+                  value={duration}
+                  onChange={(e) => setDuration(Number(e.target.value))}
+              >
+                {durationOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label} ($
+                      {((Number.parseFloat(location.price.replace(/[^0-9.]/g, "")) * option.value) / 60).toFixed(2)})
+                    </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-4">
+              <p className="text-sm text-gray-500 mb-1">Start Time</p>
+              <div className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900">{formatTime(startTime)}</div>
+            </div>
+
+            <div className="mb-4">
+              <p className="text-sm text-gray-500 mb-1">End Time</p>
+              <div className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900">{formatTime(endTime)}</div>
             </div>
 
             <div>
               <p className="text-sm text-gray-500 mb-1">Date</p>
-              <button className="w-full flex items-center justify-between bg-gray-50 rounded-lg p-3">
-              <span className="font-medium text-gray-900">
-                {new Date().toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
+              <div className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900">
+                {selectedDate.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
                 })}
-              </span>
-                <ChevronDown className="h-5 w-5 text-gray-500" />
-              </button>
+              </div>
             </div>
           </div>
 
@@ -176,9 +216,7 @@ const BookParkingPage: React.FC = () => {
                       disabled={spot.isTaken}
                   >
                     <span className="font-bold">{spot.id}</span>
-                    {spot.isAccessible && (
-                        <span className="absolute top-1 right-1 text-xs">♿️</span>
-                    )}
+                    {spot.isAccessible && <span className="absolute top-1 right-1 text-xs">♿️</span>}
                   </button>
               ))}
             </div>
@@ -211,11 +249,12 @@ const BookParkingPage: React.FC = () => {
               onClick={handleBooking}
               disabled={!selectedSpot}
           >
-            Book Spot {selectedSpot ? `#${selectedSpot}` : ''}
+            Book Spot {selectedSpot ? `#${selectedSpot}` : ""}
           </button>
         </div>
       </div>
-  );
-};
+  )
+}
 
-export default BookParkingPage;
+export default BookParkingPage
+
