@@ -1,34 +1,76 @@
-import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, Download, MapPin, Clock, Calendar, CreditCard } from 'lucide-react';
-import { useParkingContext } from '../context/ParkingContext';
+"use client"
+
+import type React from "react"
+import { useEffect, useState } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import { ArrowLeft, Check, Download, MapPin, Clock, Calendar, CreditCard, AlertTriangle } from "lucide-react"
+import { useParkingContext } from "../context/ParkingContext"
+
+const CountdownTimer: React.FC<{ sessionId: string }> = ({ sessionId }) => {
+  const { getRemainingTime } = useParkingContext()
+  const [remaining, setRemaining] = useState<{ minutes: number; seconds: number } | null>(null)
+
+  useEffect(() => {
+    // Initial check
+    setRemaining(getRemainingTime(sessionId))
+
+    // Update every second
+    const interval = setInterval(() => {
+      const time = getRemainingTime(sessionId)
+      setRemaining(time)
+
+      // If time is up, clear the interval
+      if (!time) {
+        clearInterval(interval)
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [sessionId, getRemainingTime])
+
+  if (!remaining) {
+    return (
+        <div className="flex items-center justify-center gap-2 bg-gray-100 rounded-lg p-3 text-gray-500">
+          <AlertTriangle className="h-5 w-5" />
+          <span>Session expired</span>
+        </div>
+    )
+  }
+
+  return (
+      <div className="flex items-center justify-center gap-2 bg-emerald-100 rounded-lg p-3 text-emerald-700">
+        <Clock className="h-5 w-5" />
+        <span className="font-bold">
+        {remaining.minutes.toString().padStart(2, "0")}:{remaining.seconds.toString().padStart(2, "0")} remaining
+      </span>
+      </div>
+  )
+}
 
 const ParkingDetailsPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { parkingHistory, parkingLocations, getParkingSpots } = useParkingContext();
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const { parkingHistory, parkingLocations, getParkingSpots, getRemainingTime } = useParkingContext()
 
   // Find the session by ID
-  const session = parkingHistory.find(s => s.id === id);
+  const session = parkingHistory.find((s) => s.id === id)
 
   // If session not found, redirect to history
   useEffect(() => {
     if (!session) {
-      navigate('/history');
+      navigate("/history")
     }
-  }, [session, navigate]);
+  }, [session, navigate])
 
   if (!session) {
-    return null;
+    return null
   }
 
   // Find the location based on the zone
-  const location = parkingLocations.find(loc => loc.zone === session.zone);
+  const location = parkingLocations.find((loc) => loc.zone === session.zone)
 
   // Get parking spots for this location
-  const parkingSpots = location
-      ? getParkingSpots(location.id)
-      : [];
+  const parkingSpots = location ? getParkingSpots(location.id) : []
 
   return (
       <div className="h-full flex flex-col">
@@ -66,10 +108,17 @@ const ParkingDetailsPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Countdown Timer */}
+              {session.status === "Active" && (
+                  <div className="mb-4">
+                    <CountdownTimer sessionId={session.id} />
+                  </div>
+              )}
+
               {/* Dynamic Parking Spots Grid */}
               <div className="grid grid-cols-4 gap-2">
-                {parkingSpots.length > 0 ? (
-                    parkingSpots.map((spot) => (
+                {parkingSpots.length > 0
+                    ? parkingSpots.map((spot) => (
                         <div
                             key={spot.id}
                             className={`h-6 rounded-full flex items-center justify-center ${
@@ -81,13 +130,10 @@ const ParkingDetailsPage: React.FC = () => {
                             }`}
                         >
                           {spot.isAccessible && <span className="text-xs">♿️</span>}
-                          {spot.id === session.spotId && (
-                              <span className="text-xs font-bold text-white">YOU</span>
-                          )}
+                          {spot.id === session.spotId && <span className="text-xs font-bold text-white">YOU</span>}
                         </div>
                     ))
-                ) : (
-                    // Fallback if no spots data available
+                    : // Fallback if no spots data available
                     Array.from({ length: 8 }).map((_, index) => (
                         <div
                             key={index}
@@ -99,12 +145,9 @@ const ParkingDetailsPage: React.FC = () => {
                                         : "bg-green-400/50"
                             }`}
                         >
-                          {index + 1 === session.spotId && (
-                              <span className="text-xs font-bold text-white">YOU</span>
-                          )}
+                          {index + 1 === session.spotId && <span className="text-xs font-bold text-white">YOU</span>}
                         </div>
-                    ))
-                )}
+                    ))}
               </div>
             </div>
           </div>
@@ -166,7 +209,7 @@ const ParkingDetailsPage: React.FC = () => {
                 <p className="text-sm text-gray-600">Parking session started</p>
               </div>
 
-              {session.status === 'Completed' && (
+              {session.status === "Completed" && (
                   <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                     <div className="flex items-baseline gap-2 mb-1">
                       <span className="text-base font-bold text-gray-900">{session.endTime}</span>
@@ -203,7 +246,8 @@ const ParkingDetailsPage: React.FC = () => {
           </div>
         </div>
       </div>
-  );
-};
+  )
+}
 
-export default ParkingDetailsPage;
+export default ParkingDetailsPage
+
