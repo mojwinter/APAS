@@ -30,19 +30,30 @@ const CountdownTimer: React.FC<{ sessionId: string }> = ({ sessionId }) => {
 
   if (!remaining) {
     return (
-        <div className="flex items-center justify-center gap-2 bg-gray-100 rounded-lg p-3 text-gray-500">
-          <AlertTriangle className="h-5 w-5" />
-          <span>Session expired</span>
+        <div className="flex items-center justify-center gap-3 bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+          <AlertTriangle className="h-5 w-5 text-yellow-600" />
+          <span className="font-medium text-yellow-800">Session expired</span>
         </div>
     )
   }
 
   return (
-      <div className="flex items-center justify-center gap-2 bg-emerald-100 rounded-lg p-3 text-emerald-700">
-        <Clock className="h-5 w-5" />
-        <span className="font-bold">
-        {remaining.minutes.toString().padStart(2, "0")}:{remaining.seconds.toString().padStart(2, "0")} remaining
-      </span>
+      <div className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl p-4 text-white">
+        <div className="flex items-center justify-center gap-4">
+          <div className="text-center">
+            <div className="text-3xl font-bold">{remaining.minutes.toString().padStart(2, "0")}</div>
+            <div className="text-xs text-white/80 uppercase tracking-wider mt-1">Minutes</div>
+          </div>
+          <div className="text-3xl font-bold">:</div>
+          <div className="text-center">
+            <div className="text-3xl font-bold">{remaining.seconds.toString().padStart(2, "0")}</div>
+            <div className="text-xs text-white/80 uppercase tracking-wider mt-1">Seconds</div>
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-2 mt-3 text-sm text-white/90">
+          <Clock className="h-4 w-4" />
+          <span>Time remaining</span>
+        </div>
       </div>
   )
 }
@@ -92,18 +103,18 @@ const ParkingDetailsPage: React.FC = () => {
         <div className="flex-1 overflow-y-auto p-5">
           {/* Parking Status */}
           <div className="mb-5">
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl p-5 text-white">
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
-                    <span className="text-2xl font-bold">P</span>
+                  <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-emerald-600">P</span>
                   </div>
                   <div>
-                    <h2 className="font-bold text-lg">Zone {session.zone}</h2>
-                    <p className="text-sm text-white/80">Spot #{session.spotId}</p>
+                    <h2 className="font-bold text-lg text-gray-900">Zone {session.zone}</h2>
+                    <p className="text-sm text-gray-500">Spot #{session.spotId}</p>
                   </div>
                 </div>
-                <div className="bg-white/20 rounded-full px-3 py-1">
+                <div className="bg-emerald-100 text-emerald-700 rounded-full px-3 py-1">
                   <span className="text-sm font-medium">{session.status}</span>
                 </div>
               </div>
@@ -116,7 +127,7 @@ const ParkingDetailsPage: React.FC = () => {
               )}
 
               {/* Dynamic Parking Spots Grid */}
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2 mt-4">
                 {parkingSpots.length > 0
                     ? parkingSpots.map((spot) => (
                         <div
@@ -250,4 +261,3 @@ const ParkingDetailsPage: React.FC = () => {
 }
 
 export default ParkingDetailsPage
-
