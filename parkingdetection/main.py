@@ -14,7 +14,7 @@ picam2.configure(picam2.create_preview_configuration(main={"size": (640, 480)}))
 picam2.start()
 
 # Load parking mask
-mask_path = "/home/mwinter/ParkingSpotDetection/mask_crop.png"
+mask_path = "/home/mwinter/apas-project/parkingdetection/mask_crop.png"
 mask = cv2.imread(mask_path, 0)  # Read as grayscale
 
 if mask is None:
