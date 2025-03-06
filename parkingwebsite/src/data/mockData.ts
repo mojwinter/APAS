@@ -1,5 +1,5 @@
 import type { ParkingLocation, ParkingSpot, ParkingSession, RevenueData, OccupancyData, User } from "../types"
-import { addHours, subDays, format } from "date-fns"
+import { addHours, subDays, format, subHours } from "date-fns"
 
 // Mock parking locations
 export const parkingLocations: ParkingLocation[] = [
@@ -62,12 +62,6 @@ if (universityParkingIndex !== -1) {
 const generateParkingSpots = (): ParkingSpot[] => {
   const spots: ParkingSpot[] = []
   const zones = ["A", "B", "C", "D"]
-  const statuses: ("available" | "occupied" | "reserved" | "maintenance")[] = [
-    "available",
-    "occupied",
-    "reserved",
-    "maintenance",
-  ]
 
   parkingLocations.forEach((location) => {
     const locationZone = zones[Math.floor(Math.random() * zones.length)]
@@ -78,14 +72,28 @@ const generateParkingSpots = (): ParkingSpot[] => {
       for (let i = 0; i < 10; i++) {
         const spotNumber = i.toString()
         const zone = `${locationZone}-${spotNumber}`
-        // Alternate between available and occupied for initial state
-        const status = i % 2 === 0 ? "occupied" : "available"
+
+        // Determine status: 50% available, 30% occupied, 20% expired
+        let status: "available" | "occupied" | "expired"
+        const rand = Math.random()
+        if (rand < 0.5) {
+          status = "available"
+        } else if (rand < 0.8) {
+          status = "occupied"
+        } else {
+          status = "expired"
+        }
 
         const now = new Date()
-        const occupiedSince =
-            status === "occupied" ? subDays(now, Math.floor(Math.random() * 2)).toISOString() : undefined
-        const occupiedUntil =
-            status === "occupied" ? addHours(now, Math.floor(Math.random() * 5) + 1).toISOString() : undefined
+        let occupiedSince, occupiedUntil
+
+        if (status === "occupied") {
+          occupiedSince = subHours(now, Math.floor(Math.random() * 5) + 1).toISOString()
+          occupiedUntil = addHours(now, Math.floor(Math.random() * 5) + 1).toISOString()
+        } else if (status === "expired") {
+          occupiedSince = subHours(now, Math.floor(Math.random() * 10) + 5).toISOString()
+          occupiedUntil = subHours(now, Math.floor(Math.random() * 4) + 1).toISOString() // In the past
+        }
 
         spots.push({
           id: `spot-${location.id}-${i}`,
@@ -95,30 +103,40 @@ const generateParkingSpots = (): ParkingSpot[] => {
           status: status,
           occupiedSince,
           occupiedUntil,
-          userId: status === "occupied" ? `user-${Math.floor(Math.random() * 100)}` : undefined,
-          userName: status === "occupied" ? `User ${Math.floor(Math.random() * 100)}` : undefined,
-          userVehicle: status === "occupied" ? `Vehicle ${Math.floor(Math.random() * 100)}` : undefined,
+          userId: status === "occupied" || status === "expired" ? `user-${Math.floor(Math.random() * 100)}` : undefined,
+          userName:
+              status === "occupied" || status === "expired" ? `User ${Math.floor(Math.random() * 100)}` : undefined,
+          userVehicle:
+              status === "occupied" || status === "expired" ? `Vehicle ${Math.floor(Math.random() * 100)}` : undefined,
           price: location.pricePerHour,
           isAccessible: i % 10 === 0,
         })
       }
     } else {
-      // Original logic for other locations
+      // Original logic for other locations but with new status types
       for (let i = 1; i <= location.totalSpots; i++) {
         const spotNumber = i.toString().padStart(2, "0")
         const zone = `${locationZone}-${spotNumber}`
-        const status =
-            i <= location.totalSpots - location.availableSpots
-                ? "occupied"
-                : Math.random() > 0.9
-                    ? "maintenance"
-                    : "available"
+
+        // Determine status based on available spots
+        let status: "available" | "occupied" | "expired"
+        if (i <= location.totalSpots - location.availableSpots) {
+          // This would normally be occupied, but let's make some expired
+          status = Math.random() > 0.3 ? "occupied" : "expired"
+        } else {
+          status = "available"
+        }
 
         const now = new Date()
-        const occupiedSince =
-            status === "occupied" ? subDays(now, Math.floor(Math.random() * 2)).toISOString() : undefined
-        const occupiedUntil =
-            status === "occupied" ? addHours(now, Math.floor(Math.random() * 5) + 1).toISOString() : undefined
+        let occupiedSince, occupiedUntil
+
+        if (status === "occupied") {
+          occupiedSince = subHours(now, Math.floor(Math.random() * 5) + 1).toISOString()
+          occupiedUntil = addHours(now, Math.floor(Math.random() * 5) + 1).toISOString()
+        } else if (status === "expired") {
+          occupiedSince = subHours(now, Math.floor(Math.random() * 10) + 5).toISOString()
+          occupiedUntil = subHours(now, Math.floor(Math.random() * 4) + 1).toISOString() // In the past
+        }
 
         spots.push({
           id: `spot-${location.id}-${i}`,
@@ -128,9 +146,11 @@ const generateParkingSpots = (): ParkingSpot[] => {
           status: status,
           occupiedSince,
           occupiedUntil,
-          userId: status === "occupied" ? `user-${Math.floor(Math.random() * 100)}` : undefined,
-          userName: status === "occupied" ? `User ${Math.floor(Math.random() * 100)}` : undefined,
-          userVehicle: status === "occupied" ? `Vehicle ${Math.floor(Math.random() * 100)}` : undefined,
+          userId: status === "occupied" || status === "expired" ? `user-${Math.floor(Math.random() * 100)}` : undefined,
+          userName:
+              status === "occupied" || status === "expired" ? `User ${Math.floor(Math.random() * 100)}` : undefined,
+          userVehicle:
+              status === "occupied" || status === "expired" ? `Vehicle ${Math.floor(Math.random() * 100)}` : undefined,
           price: location.pricePerHour,
           isAccessible: i % 10 === 0,
         })

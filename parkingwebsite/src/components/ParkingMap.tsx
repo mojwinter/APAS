@@ -44,25 +44,55 @@ const ParkingMap: React.FC<ParkingMapProps> = ({ spots, locationId }) => {
       const realtimeStatus = spotStatus[`spot_${spotNumber}`]
 
       if (realtimeStatus === "occupied") {
-        return "bg-red-500"
+        return "bg-blue-500" // Occupied and paid
       } else if (realtimeStatus === "empty") {
-        return "bg-green-500"
+        return "bg-green-500" // Available
+      } else if (realtimeStatus === "expired") {
+        return "bg-red-500" // Expired
       }
     }
 
     // Fallback to default status for other locations or if WebSocket data is not available
-    switch (spots.find((s) => s.spotNumber === spotNumber)?.status) {
+    const spot = spots.find((s) => s.spotNumber === spotNumber)
+    if (!spot) return "bg-gray-300"
+
+    switch (spot.status) {
       case "available":
         return "bg-green-500"
       case "occupied":
+        // Check if it's expired based on occupiedUntil time
+        if (spot.occupiedUntil && new Date(spot.occupiedUntil) < new Date()) {
+          return "bg-red-500" // Expired
+        }
+        return "bg-blue-500" // Occupied and paid
+      case "expired":
         return "bg-red-500"
-      case "reserved":
-        return "bg-yellow-500"
-      case "maintenance":
-        return "bg-gray-500"
       default:
         return "bg-gray-300"
     }
+  }
+
+  const getStatusText = (spotNumber: string) => {
+    // For University Parking, use the WebSocket data
+    if (isUniversityParking) {
+      const realtimeStatus = spotStatus[`spot_${spotNumber}`]
+      if (realtimeStatus === "occupied") return "Occupied"
+      if (realtimeStatus === "empty") return "Available"
+      if (realtimeStatus === "expired") return "Expired"
+    }
+
+    // Fallback to default status
+    const spot = spots.find((s) => s.spotNumber === spotNumber)
+    if (!spot) return ""
+
+    if (spot.status === "available") return "Available"
+    if (spot.status === "expired") return "Expired"
+
+    // Check if occupied spot is expired
+    if (spot.occupiedUntil && new Date(spot.occupiedUntil) < new Date()) {
+      return "Expired"
+    }
+    return "Occupied"
   }
 
   return (
@@ -126,16 +156,12 @@ const ParkingMap: React.FC<ParkingMapProps> = ({ spots, locationId }) => {
             <span className="text-sm">Available</span>
           </div>
           <div className="flex items-center">
-            <div className="w-4 h-4 bg-red-500 rounded-sm mr-2"></div>
+            <div className="w-4 h-4 bg-blue-500 rounded-sm mr-2"></div>
             <span className="text-sm">Occupied</span>
           </div>
           <div className="flex items-center">
-            <div className="w-4 h-4 bg-yellow-500 rounded-sm mr-2"></div>
-            <span className="text-sm">Reserved</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 bg-gray-500 rounded-sm mr-2"></div>
-            <span className="text-sm">Maintenance</span>
+            <div className="w-4 h-4 bg-red-500 rounded-sm mr-2"></div>
+            <span className="text-sm">Expired</span>
           </div>
         </div>
       </div>

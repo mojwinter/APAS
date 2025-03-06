@@ -1,78 +1,82 @@
-import React, { useState } from 'react';
-import Header from '../components/Header';
-import { parkingSpots, parkingLocations } from '../data/mockData';
-import { Car, Filter, Clock, Edit, AlertTriangle, Bell } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+"use client"
+
+import type React from "react"
+import { useState } from "react"
+import Header from "../components/Header"
+import { parkingSpots, parkingLocations } from "../data/mockData"
+import { Car, Filter, Clock, Edit, AlertTriangle, Bell, MapPin } from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
 
 const ParkingSpots: React.FC = () => {
-  const [filter, setFilter] = useState('all');
-  const [locationFilter, setLocationFilter] = useState('all');
-  const [showExpiredOnly, setShowExpiredOnly] = useState(false);
+  const [filter, setFilter] = useState("all")
+  const [locationFilter, setLocationFilter] = useState("all")
+  const [showExpiredOnly, setShowExpiredOnly] = useState(false)
 
   const isExpired = (endTime?: string) => {
-    if (!endTime) return false;
-    return new Date(endTime) < new Date();
-  };
+    if (!endTime) return false
+    return new Date(endTime) < new Date()
+  }
 
-  const filteredSpots = parkingSpots.filter(spot => {
+  const filteredSpots = parkingSpots.filter((spot) => {
     // First check expired filter
-    if (showExpiredOnly && (!spot.occupiedUntil || !isExpired(spot.occupiedUntil))) {
-      return false;
+    if (showExpiredOnly) {
+      if (spot.status === "expired") return true
+      if (spot.status === "occupied" && spot.occupiedUntil && isExpired(spot.occupiedUntil)) return true
+      return false
     }
 
     // Then check other filters
-    if (filter !== 'all' && spot.status !== filter) return false;
-    if (locationFilter !== 'all' && spot.locationId !== locationFilter) return false;
-    return true;
-  });
+    if (filter !== "all" && spot.status !== filter) return false
+    if (locationFilter !== "all" && spot.locationId !== locationFilter) return false
+    return true
+  })
 
   const getStatusBadgeClass = (status: string, endTime?: string) => {
-    if (status === 'occupied' && isExpired(endTime)) {
-      return 'bg-orange-100 text-orange-800';
+    if (status === "occupied" && endTime && isExpired(endTime)) {
+      return "bg-red-100 text-red-800" // Expired
     }
 
     switch (status) {
-      case 'available':
-        return 'bg-green-100 text-green-800';
-      case 'occupied':
-        return 'bg-red-100 text-red-800';
-      case 'reserved':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'maintenance':
-        return 'bg-gray-100 text-gray-800';
+      case "available":
+        return "bg-green-100 text-green-800"
+      case "occupied":
+        return "bg-blue-100 text-blue-800" // Occupied and paid
+      case "expired":
+        return "bg-red-100 text-red-800"
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800"
     }
-  };
+  }
 
   const getTimeRemaining = (endTime?: string) => {
-    if (!endTime) return 'N/A';
+    if (!endTime) return "N/A"
 
-    const end = new Date(endTime);
-    const now = new Date();
+    const end = new Date(endTime)
+    const now = new Date()
 
     if (end <= now) {
-      const duration = formatDistanceToNow(end, { addSuffix: true });
+      const duration = formatDistanceToNow(end, { addSuffix: true })
       return (
-          <span className="flex items-center text-orange-600 font-medium">
+          <span className="flex items-center text-red-600 font-medium">
           <AlertTriangle size={14} className="mr-1" />
           Expired {duration}
         </span>
-      );
+      )
     }
 
-    return formatDistanceToNow(end, { addSuffix: true });
-  };
+    return formatDistanceToNow(end, { addSuffix: true })
+  }
 
   // Count expired sessions
-  const expiredCount = parkingSpots.filter(spot =>
-      spot.status === 'occupied' && spot.occupiedUntil && isExpired(spot.occupiedUntil)
-  ).length;
+  const expiredCount = parkingSpots.filter(
+      (spot) =>
+          spot.status === "expired" || (spot.status === "occupied" && spot.occupiedUntil && isExpired(spot.occupiedUntil)),
+  ).length
 
   const handleNotifyAll = () => {
-    // In a real app, this would send notifications to all expired spots
-    alert(`Notifications sent to ${expiredCount} expired spots`);
-  };
+    // In the real app this could send notifications to users that they have expired parking manually
+    alert(`Notifications sent to ${expiredCount} expired spots`)
+  }
 
   return (
       <div className="flex-1 bg-gray-100 overflow-auto">
@@ -87,13 +91,13 @@ const ParkingSpots: React.FC = () => {
               </h2>
               {expiredCount > 0 && (
                   <div className="mt-2 flex items-center space-x-4">
-                    <p className="text-orange-600 flex items-center">
+                    <p className="text-red-600 flex items-center">
                       <AlertTriangle size={16} className="mr-1" />
-                      {expiredCount} spot{expiredCount !== 1 ? 's' : ''} with expired parking
+                      {expiredCount} spot{expiredCount !== 1 ? "s" : ""} with expired parking
                     </p>
                     <button
                         onClick={handleNotifyAll}
-                        className="text-orange-600 hover:text-orange-700 flex items-center text-sm font-medium"
+                        className="text-red-600 hover:text-red-700 flex items-center text-sm font-medium"
                     >
                       <Bell size={14} className="mr-1" />
                       Notify All
@@ -113,8 +117,7 @@ const ParkingSpots: React.FC = () => {
                   <option value="all">All Statuses</option>
                   <option value="available">Available</option>
                   <option value="occupied">Occupied</option>
-                  <option value="reserved">Reserved</option>
-                  <option value="maintenance">Maintenance</option>
+                  <option value="expired">Expired</option>
                 </select>
               </div>
 
@@ -126,8 +129,10 @@ const ParkingSpots: React.FC = () => {
                     onChange={(e) => setLocationFilter(e.target.value)}
                 >
                   <option value="all">All Locations</option>
-                  {parkingLocations.map(location => (
-                      <option key={location.id} value={location.id}>{location.name}</option>
+                  {parkingLocations.map((location) => (
+                      <option key={location.id} value={location.id}>
+                        {location.name}
+                      </option>
                   ))}
                 </select>
               </div>
@@ -135,13 +140,11 @@ const ParkingSpots: React.FC = () => {
               <button
                   onClick={() => setShowExpiredOnly(!showExpiredOnly)}
                   className={`flex items-center px-3 py-2 rounded-lg transition-colors ${
-                      showExpiredOnly
-                          ? 'bg-orange-100 text-orange-800 hover:bg-orange-200'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                      showExpiredOnly ? "bg-red-100 text-red-800 hover:bg-red-200" : "bg-white text-gray-700 hover:bg-gray-50"
                   }`}
               >
                 <AlertTriangle size={16} className="mr-2" />
-                {showExpiredOnly ? 'Show All' : 'Show Expired Only'}
+                {showExpiredOnly ? "Show All" : "Show Expired Only"}
               </button>
             </div>
           </div>
@@ -151,54 +154,83 @@ const ParkingSpots: React.FC = () => {
               <table className="w-full">
                 <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spot</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Remaining</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Spot
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Location
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    User
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Time Remaining
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                 {filteredSpots.map((spot) => {
-                  const location = parkingLocations.find(loc => loc.id === spot.locationId);
-                  const expired = spot.status === 'occupied' && spot.occupiedUntil && isExpired(spot.occupiedUntil);
+                  const location = parkingLocations.find((loc) => loc.id === spot.locationId)
+                  const expired =
+                      spot.status === "expired" ||
+                      (spot.status === "occupied" && spot.occupiedUntil && isExpired(spot.occupiedUntil))
 
                   return (
-                      <tr key={spot.id} className={`hover:bg-gray-50 ${expired ? 'bg-orange-50' : ''}`}>
+                      <tr key={spot.id} className={`hover:bg-gray-50 ${expired ? "bg-red-50" : ""}`}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="font-medium text-gray-900 flex items-center">
                             {spot.zone} - #{spot.spotNumber}
-                            {spot.isAccessible && (
-                                <span className="ml-2 text-blue-500 text-lg">♿</span>
-                            )}
+                            {spot.isAccessible && <span className="ml-2 text-blue-500 text-lg">♿</span>}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">{location?.name}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(spot.status, spot.occupiedUntil)}`}>
+                        <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                spot.status === "available"
+                                    ? "bg-green-100 text-green-800"
+                                    : spot.status === "occupied"
+                                        ? (
+                                            spot.occupiedUntil && isExpired(spot.occupiedUntil)
+                                                ? "bg-red-100 text-red-800"
+                                                : "bg-blue-100 text-blue-800"
+                                        )
+                                        : "bg-red-100 text-red-800"
+                            }`}
+                        >
                           {spot.status.charAt(0).toUpperCase() + spot.status.slice(1)}
-                          {expired && ' (Expired)'}
+                          {spot.status === "occupied" &&
+                              spot.occupiedUntil &&
+                              isExpired(spot.occupiedUntil) &&
+                              " (Expired)"}
                         </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{spot.userName || '-'}</div>
+                          <div className="text-sm text-gray-900">{spot.userName || "-"}</div>
                           {expired && spot.userName && (
-                              <div className="text-xs text-gray-500">{spot.userVehicle || 'No vehicle info'}</div>
+                              <div className="text-xs text-gray-500">{spot.userVehicle || "No vehicle info"}</div>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 flex items-center">
-                            {spot.status === 'occupied' ? (
+                            {spot.status === "occupied" || spot.status === "expired" ? (
                                 <>
                                   <Clock size={14} className="mr-1 text-gray-400" />
                                   {getTimeRemaining(spot.occupiedUntil)}
                                 </>
                             ) : (
-                                '-'
+                                "-"
                             )}
                           </div>
                         </td>
@@ -210,12 +242,10 @@ const ParkingSpots: React.FC = () => {
                             <button className="text-blue-500 hover:text-blue-700">
                               <Edit size={16} />
                             </button>
-                            {spot.status === 'occupied' && (
+                            {(spot.status === "occupied" || spot.status === "expired") && (
                                 <button
                                     className={`${
-                                        expired
-                                            ? 'text-orange-500 hover:text-orange-700'
-                                            : 'text-red-500 hover:text-red-700'
+                                        expired ? "text-red-500 hover:text-red-700" : "text-blue-500 hover:text-blue-700"
                                     } whitespace-nowrap`}
                                 >
                                   {expired ? (
@@ -223,13 +253,15 @@ const ParkingSpots: React.FC = () => {
                                   <Bell size={14} className="mr-1" />
                                   Send Warning
                                 </span>
-                                  ) : 'End Session'}
+                                  ) : (
+                                      "End Session"
+                                  )}
                                 </button>
                             )}
                           </div>
                         </td>
                       </tr>
-                  );
+                  )
                 })}
                 </tbody>
               </table>
@@ -237,9 +269,8 @@ const ParkingSpots: React.FC = () => {
           </div>
         </div>
       </div>
-  );
-};
+  )
+}
 
-export default ParkingSpots;
+export default ParkingSpots
 
-import { MapPin } from 'lucide-react';

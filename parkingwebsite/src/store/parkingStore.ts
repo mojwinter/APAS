@@ -1,7 +1,7 @@
 import { create } from "zustand"
 
 interface ParkingSpotStatus {
-    [key: string]: "occupied" | "empty"
+    [key: string]: "occupied" | "empty" | "expired"
 }
 
 interface ParkingStore {
@@ -35,8 +35,24 @@ export const initWebSocket = () => {
             try {
                 console.log("Received Data:", event.data)
                 const data = JSON.parse(event.data)
-                // Update the store with the received data
-                store.updateSpotStatus(data)
+
+                // Process the data to handle the new status types
+                const processedData: ParkingSpotStatus = {}
+
+                // Convert the incoming data to our new status types
+                Object.entries(data).forEach(([key, value]) => {
+                    if (value === "occupied") {
+                        // For simplicity, we'll treat all "occupied" as paid
+                        processedData[key] = "occupied"
+                    } else if (value === "empty") {
+                        processedData[key] = "empty"
+                    } else if (value === "expired") {
+                        processedData[key] = "expired"
+                    }
+                })
+
+                // Update the store with the processed data
+                store.updateSpotStatus(processedData)
             } catch (error) {
                 console.error("Error parsing WebSocket data:", error)
             }
