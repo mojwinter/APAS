@@ -1,13 +1,40 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Parking App</title>
+
+  <!-- PWA Meta Tags -->
+  <meta name="description" content="Find your perfect parking spot" />
+  <meta name="theme-color" content="#10b981" />
+
+  <!-- iOS Meta Tags -->
+  <link rel="apple-touch-icon" href="./icon-192x192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="APAS">
+
+  <!-- Prevent URL bar from showing in standalone mode -->
+  <script>
+    if (window.navigator.standalone) {
+      document.addEventListener('click', function(e) {
+        // Handle internal navigation to prevent breaking out of standalone mode
+        if (e.target.tagName === 'A' && e.target.getAttribute('href')) {
+          const href = e.target.getAttribute('href');
+          if (href.startsWith('/') || href.startsWith('./') || !href.includes('://')) {
+            e.preventDefault();
+            window.location.hash = href.replace(/^[\.\/]+/, '#/');
+          }
+        }
+      }, false);
+    }
+  </script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="./src/main.tsx"></script>
+</body>
 </html>
+
