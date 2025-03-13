@@ -46,7 +46,7 @@ type ParkingContextType = {
     addParkingSession: (session: ParkingSession) => void
     getParkingSpots: (locationId: number) => ParkingSpot[]
     updateParkingSpot: (locationId: number, spotId: number, isTaken: boolean) => void
-    getRemainingTime: (sessionId: string) => { minutes: number; seconds: number } | null
+    getRemainingTime: (sessionId: string) => { hours: number; minutes: number; seconds: number } | null
 }
 
 const ParkingContext = createContext<ParkingContextType | undefined>(undefined)
@@ -273,7 +273,7 @@ export const ParkingProvider: React.FC<ParkingProviderProps> = ({ children }) =>
         })
     }
 
-    const getRemainingTime = (sessionId: string): { minutes: number; seconds: number } | null => {
+    const getRemainingTime = (sessionId: string): { hours: number; minutes: number; seconds: number } | null => {
         const session = parkingHistory.find((s) => s.id === sessionId)
         if (!session || !session.endTimestamp || session.status !== "Active") {
             return null
@@ -289,10 +289,11 @@ export const ParkingProvider: React.FC<ParkingProviderProps> = ({ children }) =>
             return null
         }
 
-        const minutes = Math.floor(remaining / (1000 * 60))
+        const hours = Math.floor(remaining / (1000 * 60 * 60))
+        const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60))
         const seconds = Math.floor((remaining % (1000 * 60)) / 1000)
 
-        return { minutes, seconds }
+        return { hours, minutes, seconds }
     }
 
     const value = {

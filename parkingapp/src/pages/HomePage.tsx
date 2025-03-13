@@ -8,7 +8,7 @@ import { useParkingContext } from "../context/ParkingContext"
 
 const HomeCountdownTimer: React.FC<{ sessionId: string }> = ({ sessionId }) => {
     const { getRemainingTime } = useParkingContext()
-    const [remaining, setRemaining] = useState<{ minutes: number; seconds: number } | null>(null)
+    const [remaining, setRemaining] = useState<{ hours: number; minutes: number; seconds: number } | null>(null)
 
     useEffect(() => {
         // Initial check
@@ -40,6 +40,15 @@ const HomeCountdownTimer: React.FC<{ sessionId: string }> = ({ sessionId }) => {
     return (
         <div className="flex flex-col items-center gap-2">
             <div className="flex items-center gap-3">
+                {remaining.hours > 0 && (
+                    <>
+                        <div className="bg-white/20 rounded-lg px-3 py-2">
+                            <span className="text-xl font-bold">{remaining.hours.toString().padStart(2, "0")}</span>
+                            <span className="text-xs ml-1">hr</span>
+                        </div>
+                        <span className="text-xl font-bold">:</span>
+                    </>
+                )}
                 <div className="bg-white/20 rounded-lg px-3 py-2">
                     <span className="text-xl font-bold">{remaining.minutes.toString().padStart(2, "0")}</span>
                     <span className="text-xs ml-1">min</span>
@@ -65,7 +74,7 @@ const HomePage: React.FC = () => {
     const recentLocations = parkingLocations.slice(0, 3)
 
     return (
-        <div className="p-5">
+        <div className="page-container">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Hello, Mitchell</h1>
@@ -166,3 +175,4 @@ const HomePage: React.FC = () => {
 }
 
 export default HomePage
+

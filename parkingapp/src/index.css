@@ -1,3 +1,60 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* iOS Safe Area Utilities */
+@supports (padding: max(0px)) {
+    .ios-safe-area-pb {
+        padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+    }
+
+    .ios-safe-area-pt {
+        padding-top: max(env(safe-area-inset-top), 0px);
+    }
+
+    .ios-safe-area-pl {
+        padding-left: max(1rem, env(safe-area-inset-left));
+    }
+
+    .ios-safe-area-pr {
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+}
+
+/* Apply safe area padding to navigation */
+@supports (padding: max(0px)) {
+    .fixed.bottom-0 {
+        padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+}
+
+/* Status bar height for iOS */
+:root {
+    --status-bar-height: env(safe-area-inset-top, 0px);
+}
+
+/* Apply status bar height to page headers with minimal extra padding */
+.page-header {
+    padding-top: calc(0.5rem + var(--status-bar-height));
+}
+
+/* Page container with proper padding */
+.page-container {
+    padding: 1.25rem;
+    padding-top: calc(1.25rem + env(safe-area-inset-top, 0px));
+    padding-bottom: 6rem; /* Extra space for the navigation bar */
+}
+
+/* Page container with extra bottom padding for buttons */
+.page-container-with-button {
+    padding: 1.25rem;
+    padding-top: calc(1.25rem + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); /* Extra space for navigation + button */
+}
+
+/* Header with safe area padding */
+.header-with-safe-area {
+    padding: 1.25rem;
+    padding-top: calc(1.25rem + env(safe-area-inset-top, 0px));
+}
+

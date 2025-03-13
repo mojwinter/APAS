@@ -107,7 +107,7 @@ const BookParkingPage: React.FC = () => {
   return (
       <div className="h-full flex flex-col">
         {/* Header */}
-        <div className="p-5 flex items-center justify-between border-b border-gray-100">
+        <div className="header-with-safe-area flex items-center justify-between border-b border-gray-100">
           <button
               className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 transition-colors"
               onClick={() => navigate(-1)}
@@ -118,139 +118,144 @@ const BookParkingPage: React.FC = () => {
           <div className="w-10"></div> {/* Empty div for spacing */}
         </div>
 
-        {/* Booking Content */}
-        <div className="flex-1 overflow-y-auto p-5">
-          {/* Location Info */}
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-5">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
-                <MapPin className="h-6 w-6 text-emerald-600" />
+        {/* Booking Content - Include everything in the scrollable area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-5">
+            {/* Location Info */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <MapPin className="h-6 w-6 text-emerald-600" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-lg text-gray-900">{location.name}</h2>
+                  <p className="text-sm text-gray-500">{location.address}</p>
+                </div>
               </div>
-              <div>
-                <h2 className="font-bold text-lg text-gray-900">{location.name}</h2>
-                <p className="text-sm text-gray-500">{location.address}</p>
+
+              <div className="flex justify-between items-center text-sm text-gray-500">
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  <span>Open 24/7</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Car className="h-4 w-4" />
+                  <span>{location.availableSpots} spots available</span>
+                </div>
               </div>
             </div>
 
-            <div className="flex justify-between items-center text-sm text-gray-500">
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>Open 24/7</span>
+            {/* Zone and Time Selection */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-5">
+              <h3 className="font-bold text-gray-900 mb-3">Parking Details</h3>
+
+              <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-100">
+                <div>
+                  <p className="text-sm text-gray-500">Zone</p>
+                  <p className="text-xl font-bold text-gray-900">{location.zone}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Price</p>
+                  <p className="text-xl font-bold text-gray-900">{calculatePrice()}</p>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Car className="h-4 w-4" />
-                <span>{location.availableSpots} spots available</span>
+
+              <div className="mb-4">
+                <p className="text-sm text-gray-500 mb-1">Duration</p>
+                <select
+                    className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900"
+                    value={duration}
+                    onChange={(e) => setDuration(Number(e.target.value))}
+                >
+                  {durationOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label} ($
+                        {((Number.parseFloat(location.price.replace(/[^0-9.]/g, "")) * option.value) / 60).toFixed(2)})
+                      </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-sm text-gray-500 mb-1">Start Time</p>
+                <div className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900">{formatTime(startTime)}</div>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-sm text-gray-500 mb-1">End Time</p>
+                <div className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900">{formatTime(endTime)}</div>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Date</p>
+                <div className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900">
+                  {selectedDate.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Zone and Time Selection */}
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-5">
-            <h3 className="font-bold text-gray-900 mb-3">Parking Details</h3>
+            {/* Spot Selection */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-5">
+              <h3 className="font-bold text-gray-900 mb-3">Select From Available Spots</h3>
 
-            <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-100">
-              <div>
-                <p className="text-sm text-gray-500">Zone</p>
-                <p className="text-xl font-bold text-gray-900">{location.zone}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Price</p>
-                <p className="text-xl font-bold text-gray-900">{calculatePrice()}</p>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-1">Duration</p>
-              <select
-                  className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900"
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
-              >
-                {durationOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label} ($
-                      {((Number.parseFloat(location.price.replace(/[^0-9.]/g, "")) * option.value) / 60).toFixed(2)})
-                    </option>
+              <div className="grid grid-cols-4 gap-3">
+                {parkingSpots.map((spot) => (
+                    <button
+                        key={spot.id}
+                        className={`h-14 rounded-lg flex items-center justify-center ${
+                            spot.isTaken
+                                ? "bg-red-100 text-red-500 cursor-not-allowed"
+                                : spot.id === selectedSpot
+                                    ? "bg-emerald-500 text-white"
+                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        } ${spot.isAccessible ? "relative" : ""}`}
+                        onClick={() => !spot.isTaken && handleSpotSelection(spot.id)}
+                        disabled={spot.isTaken}
+                    >
+                      <span className="font-bold">{spot.id}</span>
+                      {spot.isAccessible && <span className="absolute top-1 right-1 text-xs">♿️</span>}
+                    </button>
                 ))}
-              </select>
-            </div>
+              </div>
 
-            <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-1">Start Time</p>
-              <div className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900">{formatTime(startTime)}</div>
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-1">End Time</p>
-              <div className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900">{formatTime(endTime)}</div>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Date</p>
-              <div className="w-full bg-gray-50 rounded-lg p-3 font-medium text-gray-900">
-                {selectedDate.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
+              <div className="mt-4 flex justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-emerald-500"></div>
+                  <span className="text-gray-600">Selected</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-gray-100"></div>
+                  <span className="text-gray-600">Available</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-red-100"></div>
+                  <span className="text-gray-600">Taken</span>
+                </div>
               </div>
             </div>
+
+            {/* Book Button - Include in the scrollable area */}
+            <div className="p-5 border-t border-gray-100 bg-white">
+              <button
+                  className={`w-full py-3 rounded-lg text-sm font-medium text-white ${
+                      selectedSpot
+                          ? "bg-emerald-600 hover:bg-emerald-700 focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+                          : "bg-gray-300 cursor-not-allowed"
+                  }`}
+                  onClick={handleBooking}
+                  disabled={!selectedSpot}
+              >
+                Book Spot {selectedSpot ? `#${selectedSpot}` : ""}
+              </button>
+            </div>
+
+            {/* Small spacer to ensure button is visible above navigation */}
+            <div className="h-16"></div>
           </div>
-
-          {/* Spot Selection */}
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-5">
-            <h3 className="font-bold text-gray-900 mb-3">Select From Available Spots</h3>
-
-            <div className="grid grid-cols-4 gap-3">
-              {parkingSpots.map((spot) => (
-                  <button
-                      key={spot.id}
-                      className={`h-14 rounded-lg flex items-center justify-center ${
-                          spot.isTaken
-                              ? "bg-red-100 text-red-500 cursor-not-allowed"
-                              : spot.id === selectedSpot
-                                  ? "bg-emerald-500 text-white"
-                                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      } ${spot.isAccessible ? "relative" : ""}`}
-                      onClick={() => !spot.isTaken && handleSpotSelection(spot.id)}
-                      disabled={spot.isTaken}
-                  >
-                    <span className="font-bold">{spot.id}</span>
-                    {spot.isAccessible && <span className="absolute top-1 right-1 text-xs">♿️</span>}
-                  </button>
-              ))}
-            </div>
-
-            <div className="mt-4 flex justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-emerald-500"></div>
-                <span className="text-gray-600">Selected</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-gray-100"></div>
-                <span className="text-gray-600">Available</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-red-100"></div>
-                <span className="text-gray-600">Taken</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Book Button */}
-        <div className="p-5 border-t border-gray-100">
-          <button
-              className={`w-full py-3 rounded-lg text-sm font-medium text-white ${
-                  selectedSpot
-                      ? "bg-emerald-600 hover:bg-emerald-700 focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-                      : "bg-gray-300 cursor-not-allowed"
-              }`}
-              onClick={handleBooking}
-              disabled={!selectedSpot}
-          >
-            Book Spot {selectedSpot ? `#${selectedSpot}` : ""}
-          </button>
         </div>
       </div>
   )
