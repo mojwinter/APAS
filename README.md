@@ -1,4 +1,4 @@
-## Project Overview:
+# Project Overview:
 
 Automated Parking Availability System (APAS):
 
@@ -9,6 +9,6 @@ The system leverages machine learning for vehicle detection, using a YOLOv8 obje
 Real-time updates are provided via a WebSocket server built with Node.js, allowing connected clients to receive instantaneous status changes. The React.js–based web application serves as the user interface, offering features such as live parking visualization, reservation booking, and payment processing.
 
 
-# APAS Tech Stack:
+## APAS Tech Stack:
 
 ![image](https://github.com/user-attachments/assets/d184cead-4589-4f3a-adee-d0dafb46bb36)
