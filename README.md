@@ -75,7 +75,7 @@ The find parking view allows users to easily locate parking lots based on their 
   
 After selecting their desired location, the user is navigated to the parking booking page. This seamless navigation system guides the user from exploration to action with a single tap, emphasizing ease of use and intuitive interaction. By structuring the app this way with a scrollable list of available locations and lot availability, combined with bookings one tap away, helps ensure that users are consistently engaged throughout the discovery and booking process. The underlying location availability display is tracked through a parking context system that can access the state of each parking spot and keep a real-time count for available and taken spots.
 
-![bookparking](https://github.com/user-attachments/assets/e66599fd-aec2-4795-8d62-09a67a3f6fcb)
+![bookparkingv2](https://github.com/user-attachments/assets/f3ca384e-c6ec-41d8-80d1-0f9f8a7e7807)
 
 In the “Book Parking” interface the user can configure the details of their reservation. As illustrated in the above figure, this screen allows users to first choose their desired parking duration in the form of a dropdown menu. The app offers multiple time options depending on the parking location, for this example ranging from 30 minutes to 4 hours, with the corresponding price displayed next to each selection. This flexible pricing model accommodates the needs of different, from short errands to long-term stays.
 
@@ -87,13 +87,13 @@ This well-structured process ensures that users can efficiently secure a parking
 
 ### Active Parking View
 
-![image](https://github.com/user-attachments/assets/7c138f7e-5c87-4709-91f5-b25380f3a33d)
+![parkingdetailsv4](https://github.com/user-attachments/assets/907d430f-3f8e-4cc7-9013-0501a635bf51)
 
 After successfully booking a parking spots, the session immediately appears in the “Parking History” tab. As illustrated in the figure above, ongoing parking session are clearly labelled as active, allowing users to easily differentiate between ongoing parking bookings and expired bookings.
 
 Clicking on an active parking booking brings users to the “Parking Details” page that presents a live countdown timer showing the remaining duration of their session, offering real-time monitoring for customers. Underneath this section is a live parking map which displays the state of all parking spots including a “You” label for the users currently occupied spot for that session. Additional context is offered in the form of parking details such as location, date and start/end times to help users keep track of their current reservation. This screen ensures that users can monitor their active bookings and revisit key information as needed, allowing them to stay informed throughout their entire parking experience under the ecosystem.
 
-![image](https://github.com/user-attachments/assets/3d43bf88-28bc-4839-bb0f-26044a00c188)
+![homepage_bookedv3](https://github.com/user-attachments/assets/c841ddc0-2869-434e-99ee-48661e978650)
 
 When a user has an active parking session, the homepage dynamically updates to reflect their booking in real-time. As shown in the figure above, the standard homepage embeds an active parking banner, providing an at-a-glance summary of the current booking. This includes details such the parking zone, location and session time alongside a live countdown timer indicating how much time is remaining on their reservation.
 
