@@ -63,7 +63,7 @@ Currently each entry is marked with the “Completed” status badge, indicating
 The last section on the navigation bar is the profile page which servers as a single location for users to manage their credentials, such as display name, email address and payment details for bookings and renewals. Other miscellaneous features are offered such as past notifications from the system and security and privacy notices involving the disclosure of image detection and the usage of data.
 
 ### Finding Parking View
-![findparking](https://github.com/user-attachments/assets/1938e226-f3f2-481b-8e03-2557520cd8d8)
+![findparkingv4](https://github.com/user-attachments/assets/a8b3bc3f-8f20-4302-a6a3-64b686cbfe03)
 
 The find parking view allows users to easily locate parking lots based on their current location or desired destination. As shown in figure above, users begin by browsing a list of nearby parking locations, where each listing provides the following essential information:
 
@@ -75,7 +75,7 @@ The find parking view allows users to easily locate parking lots based on their 
   
 After selecting their desired location, the user is navigated to the parking booking page. This seamless navigation system guides the user from exploration to action with a single tap, emphasizing ease of use and intuitive interaction. By structuring the app this way with a scrollable list of available locations and lot availability, combined with bookings one tap away, helps ensure that users are consistently engaged throughout the discovery and booking process. The underlying location availability display is tracked through a parking context system that can access the state of each parking spot and keep a real-time count for available and taken spots.
 
-![image](https://github.com/user-attachments/assets/49ee5c6c-8a7b-43a8-939b-b6f23f0798f3)
+![bookparking](https://github.com/user-attachments/assets/e66599fd-aec2-4795-8d62-09a67a3f6fcb)
 
 In the “Book Parking” interface the user can configure the details of their reservation. As illustrated in the above figure, this screen allows users to first choose their desired parking duration in the form of a dropdown menu. The app offers multiple time options depending on the parking location, for this example ranging from 30 minutes to 4 hours, with the corresponding price displayed next to each selection. This flexible pricing model accommodates the needs of different, from short errands to long-term stays.
 
