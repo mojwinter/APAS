@@ -93,7 +93,7 @@ After successfully booking a parking spots, the session immediately appears in t
 
 Clicking on an active parking booking brings users to the “Parking Details” page that presents a live countdown timer showing the remaining duration of their session, offering real-time monitoring for customers. Underneath this section is a live parking map which displays the state of all parking spots including a “You” label for the users currently occupied spot for that session. Additional context is offered in the form of parking details such as location, date and start/end times to help users keep track of their current reservation. This screen ensures that users can monitor their active bookings and revisit key information as needed, allowing them to stay informed throughout their entire parking experience under the ecosystem.
 
-![homepage_bookedv3](https://github.com/user-attachments/assets/c841ddc0-2869-434e-99ee-48661e978650)
+![homepage_booked (1)](https://github.com/user-attachments/assets/3d80d95f-1123-401d-9400-63596a0f65a4)
 
 When a user has an active parking session, the homepage dynamically updates to reflect their booking in real-time. As shown in the figure above, the standard homepage embeds an active parking banner, providing an at-a-glance summary of the current booking. This includes details such the parking zone, location and session time alongside a live countdown timer indicating how much time is remaining on their reservation.
 
