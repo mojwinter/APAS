@@ -1,9 +1,9 @@
 # Automated Parking Availability System (APAS):
-APAS is an end-to-end smart parking platform that combines real-time image detection, a responsive mobile interface, and a dynamic admin dashboard — built using React and TypeScript to streamline parking management and elevate the user experience.
+APAS is an end-to-end smart parking platform that combines real-time image detection, a responsive mobile interface, and a dynamic admin dashboard - built using React and TypeScript to streamline parking management and elevate the user experience.
 
 At the core of the system is a Raspberry Pi running a self-trained YOLOv10 computer vision model to monitor parking occupancy, broadcasting live updates via WebSockets to both a client-facing app and an administrative dashboard. The mobile app enables users to easily locate, book, and manage parking sessions, while the admin portal offers robust tools for real-time monitoring, enforcement, and analytics.
 
-APAS is designed to be modular, scalable, and user-centric—demonstrating how modern IoT, edge AI, and web technologies can solve modern urban parking challenges efficiently and improve quality of life. Especially in a dated and frustrating application such as parking.
+APAS is designed to be modular, scalable, and user-centric-demonstrating how modern IoT, edge AI, and web technologies can solve modern urban parking challenges efficiently and improve quality of life. Especially in a dated and frustrating application such as parking.
 
 # APAS System Architecture:
 ![full3x](https://github.com/user-attachments/assets/b64eb026-61f1-48ad-bb96-0a526de2feaa)
