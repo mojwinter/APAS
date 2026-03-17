@@ -23,7 +23,6 @@ export const initWebSocket = () => {
     const store = useParkingStore.getState()
 
     try {
-        // Use a more reliable WebSocket URL (you may need to adjust this)
         const ws = new WebSocket("ws://192.168.2.169:8765")
 
         ws.onopen = () => {

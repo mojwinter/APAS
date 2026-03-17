@@ -3,8 +3,7 @@ import websockets
 import json
 import time
 
-# Number of parking spots (Assumed, change as needed)
-NUM_SPOTS = 10  # Adjust this to match your actual parking spot count
+NUM_SPOTS = 10
 
 def generate_mock_parking_data(toggle):
     """Generates mock parking data alternating between even and odd spots occupied."""
